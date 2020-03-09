@@ -125,6 +125,9 @@ public final class ReciprocalArraySum {
 
         @Override
         protected void compute() {
+            for (int i = startIndexInclusive; i < endIndexExclusive; i++) {
+            	value += 1 / input[i];
+            }
             // TODO
         }
     }
@@ -141,14 +144,20 @@ public final class ReciprocalArraySum {
     protected static double parArraySum(final double[] input) {
         assert input.length % 2 == 0;
 
-        double sum = 0;
+        int range = input.length;
 
-        // Compute sum of reciprocals of array elements
-        for (int i = 0; i < input.length; i++) {
-            sum += 1 / input[i];
+        ReciprocalArraySumTask t1 = new ReciprocalArraySumTask(0, range/2, input);
+        ReciprocalArraySumTask t2 = new ReciprocalArraySumTask(range/2, range, input);
+
+        if (range < 100) {
+        	t1.compute();
+        	t2.compute();
+        } else {
+        	t1.fork();
+        	t2.compute();
+        	t1.join();
         }
-
-        return sum;
+        return t1.getValue() + t2.getValue();
     }
 
     /**
